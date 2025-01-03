@@ -7,9 +7,9 @@ from transformers import TrainingArguments, Trainer, AutoTokenizer, AutoModelFor
 import datasets
 from datetime import datetime
 import copy
-
+from peft import LoraConfig, get_peft_model, TaskType
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 os.environ["NCCL_P2P_DISABLE"] = "1"
 os.environ["NCCL_IB_DISABLE"] = "1"
 
@@ -59,6 +59,19 @@ def finetune(config_path: str, loss: str):
         model_args.model_name_or_path,
         torch_dtype=getattr(torch, model_args.torch_dtype) if model_args.torch_dtype else None,
     )
+    lora_config = LoraConfig(
+        r=8,                      # LoRA rank
+        lora_alpha=32,           # LoRA alpha
+        lora_dropout=0.05,       # LoRA dropout
+        inference_mode=False,
+        task_type=TaskType.CAUSAL_LM,
+        target_modules = [
+        "q_proj", "k_proj", "v_proj", "o_proj"
+        ]
+    )
+    model = get_peft_model(model, lora_config)
+    model.config.use_cache = False
+    model.print_trainable_parameters()
 
     # Load dataset
     dataset = datasets.load_dataset("json", data_files={"train": data_args.dataset_path})

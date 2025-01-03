@@ -1,12 +1,12 @@
 model_args:
-  model_name_or_path: "./Qwen2.5-0.5B"
+  model_name_or_path: "./models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
   torch_dtype: "bfloat16"
 
 data_args:
   dataset_path: "./alpaca-cleaned/alpaca_data_cleaned.json"
 
 training_args:
-  output_dir: "/data/lihong/logs"
+  output_dir: "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output"
   overwrite_output_dir: true
   num_train_epochs: 5
   per_device_train_batch_size: 1
