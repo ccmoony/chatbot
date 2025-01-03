@@ -40,7 +40,7 @@ def load_config(config_path: str):
     return config
 
 
-def finetune(config_path: str, loss: str):
+def finetune(config_path: str, loss: str, use_lora: bool):
     # Load config from the provided YAML file
     config = load_config(config_path)
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -59,19 +59,20 @@ def finetune(config_path: str, loss: str):
         model_args.model_name_or_path,
         torch_dtype=getattr(torch, model_args.torch_dtype) if model_args.torch_dtype else None,
     )
-    lora_config = LoraConfig(
-        r=8,                      # LoRA rank
-        lora_alpha=32,           # LoRA alpha
-        lora_dropout=0.05,       # LoRA dropout
-        inference_mode=False,
-        task_type=TaskType.CAUSAL_LM,
-        target_modules = [
-        "q_proj", "k_proj", "v_proj", "o_proj"
-        ]
-    )
-    model = get_peft_model(model, lora_config)
-    model.config.use_cache = False
-    model.print_trainable_parameters()
+    if use_lora:
+        lora_config = LoraConfig(
+            r=8,                      # LoRA rank
+            lora_alpha=32,           # LoRA alpha
+            lora_dropout=0.05,       # LoRA dropout
+            inference_mode=False,
+            task_type=TaskType.CAUSAL_LM,
+            target_modules = [
+            "q_proj", "k_proj", "v_proj", "o_proj"
+            ]
+        )
+        model = get_peft_model(model, lora_config)
+        model.config.use_cache = False
+        model.print_trainable_parameters()
 
     # Load dataset
     dataset = datasets.load_dataset("json", data_files={"train": data_args.dataset_path})
@@ -144,6 +145,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fine-tune LLMs with Huggingface.")
     parser.add_argument("--config", type=str, default="config.yaml", help="Path to the YAML configuration file.")
     parser.add_argument("--loss", type=str, default="output", help="Using output or whole as labels to compute loss")
+    parser.add_argument("--use_lora", type=bool, default=True, help="Using lora to finetune or not")
     args = parser.parse_args()
 
-    finetune(args.config, args.loss)
+    finetune(args.config, args.loss, args.use_lora)
