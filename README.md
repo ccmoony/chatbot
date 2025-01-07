@@ -20,9 +20,14 @@ python finetune.py config.yaml
 ```
 
 ## 💻 Deploy on Terminal
-Run the following command to start the chatbot on terminal:
+Run the following commands to start the chatbot on terminal.
+Use the pretrained model or the full-parameter fine-tuned model:
 ```bash
-python chat.py
+python chat.py --model_path "your_model_path"
+```
+Use the LoRA fine-tuned model:
+```bash
+python chat.py --model_path "your_model_path" --lora_path "your_lora_path"
 ```
 
 ## 🎮 Demo

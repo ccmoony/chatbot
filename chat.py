@@ -9,12 +9,16 @@ except Exception:
 import queue
 import threading
 import sys
+#stylemodel
+from style_model import StyleModel
+import argparse
  
 logging.set_verbosity_error()
 def load_model(model_name, lora_path, device):
     tokenizer = AutoTokenizer.from_pretrained(model_name,trust_remote_code=True)
     model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True).eval().to(device)
-    model = PeftModel.from_pretrained(model, lora_path)
+    if lora_path !=None:
+        model = PeftModel.from_pretrained(model, lora_path)
     # config = PeftConfig.from_pretrained(model_name)
     # model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path)
     # model = PeftModel.from_pretrained(model, model_name).eval().to(device)
@@ -54,8 +58,8 @@ def chat(
         do_sample: bool = True,
         temperature: float = 0.7,
         top_p: float = 0.9,
-        meta_instruction: str = "You are a useful AI assistant",
-        device: Optional[str] = "cuda:0",
+        meta_instruction: str = "You are a useful assistant.",
+        device: Optional[str] = "cuda:1",
         **kwargs,
     ):
 
@@ -89,8 +93,8 @@ def stream_chat(
     do_sample: bool = True,
     temperature: float = 0.7,
     top_p: float = 0.9,
-    meta_instruction: str = "You are a useful AI assistant",
-    device: Optional[str] = "cuda:0",
+    meta_instruction: str = "You are a useful assistant.",
+    device: Optional[str] = "cuda:1",
     **kwargs,
 ):
     if history is None:
@@ -180,11 +184,10 @@ def stream_chat(
 def chatbot(model_name, lora_path, device="cuda:0", use_streamer = True):
     print("加载模型中，请稍候...")
     tokenizer, model = load_model(model_name, lora_path, device)
-
+    #style_model = StyleModel(scene="三国演义", character="刘备", device=device, model_name_or_path="stylellm/SanGuoYanYi-6b-AWQ")
     print("模型加载完成！输入 \\quit 结束会话，输入 \\newsession 开启新的对话。")
     
     history = []
-    
     while True:
 
         query = input("用户: ")
@@ -202,17 +205,26 @@ def chatbot(model_name, lora_path, device="cuda:0", use_streamer = True):
                     sys.stdout.write("\033[s")  
                     sys.stdout.flush()
                     for response, history in stream_chat(model, tokenizer, query, history, device=device):
+                        #stylemodel
+                        #response = style_model.generate(response)   
                         sys.stdout.write(f"\033[u{response}")
                     print("\n")
                 else:
                     response, history = chat(model, tokenizer, query, history, device=device)
+                    #stylemodel
+                    #response = style_model.generate(response)   
                     print("机器人: \n", response)
-
-
+            
             except Exception as e:
                 print("生成回复时发生错误：", str(e))
 
 if __name__ == "__main__":
-    chatbot("/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b",
-        "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-155280",
-        "cuda:0")
+    parser = argparse.ArgumentParser(description="chatbot deployed on terminal")
+    parser.add_argument("--model_path", type=str, help="the path of pretrained model checkpoint")
+    parser.add_argument("--lora_path", type=str, default=None, help="the path of lora checkpoint")
+    parser.add_argument("--device", type=str, default="cuda:0", help="inference on which device")
+    args = parser.parse_args()
+    chatbot(args.model_path, args.lora_path, args.device)
+
+
+
