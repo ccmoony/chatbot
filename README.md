@@ -26,7 +26,8 @@ python chat.py
 ```
 
 ## 🎮 Demo
-Run the following command to start a WebUI demo:
+Run the following command to start a Web UI demo:
 ```bash
 python demo.py
 ```
+The demo below will open in a browser on http://localhost:7860
