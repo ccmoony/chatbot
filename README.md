@@ -30,7 +30,7 @@ Use the LoRA fine-tuned model:
 python chat.py --model_path "your_model_path" --lora_path "your_lora_path"
 ```
 
-## 🎮 Demo
+## 🎮 GUI Demo
 Run the following command to start a Web UI demo:
 ```bash
 python demo.py
