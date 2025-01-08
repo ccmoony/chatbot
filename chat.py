@@ -2,6 +2,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, logging
 import torch
 from typing import List, Optional, Tuple, Union
 from peft import LoraConfig, get_peft_model, TaskType, PeftModel,PeftConfig
+from retrieval import retrieve_knowledge
 try:
     from transformers.generation.streamers import BaseStreamer, TextStreamer
 except Exception:
@@ -36,12 +37,17 @@ def load_model(model_name, lora_path, device):
     # model = get_peft_model(model, lora_config)
     return tokenizer, model
     
-def build_inputs(tokenizer, query: str, history: List[Tuple[str, str]] = None, meta_instruction=""):
+def build_inputs(tokenizer, query: str, history: List[Tuple[str, str]] = None, meta_instruction="", retrieval=True):
     if history is None:
         history = []
     prompt = ""
     if meta_instruction:
         prompt += f"""<|im_start|>system\n{meta_instruction}<|im_end|>\n"""
+    if retrieval:
+        knowledge = retrieve_knowledge(query)
+        knowledge_context = "\n".join(knowledge)
+        prompt += f"<|im_start|>system\nRelevant knowledge: {knowledge_context}<|im_end|>\n"
+
     for record in history:
         prompt += f"""<|im_start|>user\n{record[0]}<|im_end|>\n<|im_start|>assistant\n{record[1]}<|im_end|>\n"""
     prompt += f"""<|im_start|>user\n{query}<|im_end|>\n<|im_start|>assistant\n"""
@@ -60,6 +66,7 @@ def chat(
         top_p: float = 0.9,
         meta_instruction: str = "You are a useful assistant.",
         device: Optional[str] = "cuda:1",
+        use_retrieval: bool = True,
         **kwargs,
     ):
 
@@ -95,6 +102,7 @@ def stream_chat(
     top_p: float = 0.9,
     meta_instruction: str = "You are a useful assistant.",
     device: Optional[str] = "cuda:1",
+    use_retrieval: bool = True
     **kwargs,
 ):
     if history is None:
@@ -167,6 +175,7 @@ def stream_chat(
             temperature=temperature,
             top_p=top_p,
             meta_instruction=meta_instruction,
+            use_retrieval=use_retrieval
             **kwargs,
         )
 
@@ -181,7 +190,7 @@ def stream_chat(
 
     return consumer()
 
-def chatbot(model_name, lora_path, device="cuda:0", use_streamer = True):
+def chatbot(model_name, lora_path, device="cuda:0", use_streamer = True, use_retrieval = True):
     print("加载模型中，请稍候...")
     tokenizer, model = load_model(model_name, lora_path, device)
     #style_model = StyleModel(scene="三国演义", character="刘备", device=device, model_name_or_path="stylellm/SanGuoYanYi-6b-AWQ")
@@ -204,13 +213,13 @@ def chatbot(model_name, lora_path, device="cuda:0", use_streamer = True):
                     print("机器人: ")
                     sys.stdout.write("\033[s")  
                     sys.stdout.flush()
-                    for response, history in stream_chat(model, tokenizer, query, history, device=device):
+                    for response, history in stream_chat(model, tokenizer, query, history, device=device, use_retrieval=use_retrieval):
                         #stylemodel
                         #response = style_model.generate(response)   
                         sys.stdout.write(f"\033[u{response}")
                     print("\n")
                 else:
-                    response, history = chat(model, tokenizer, query, history, device=device)
+                    response, history = chat(model, tokenizer, query, history, device=device, use_retrieval=use_retrieval)
                     #stylemodel
                     #response = style_model.generate(response)   
                     print("机器人: \n", response)
@@ -225,6 +234,3 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="cuda:0", help="inference on which device")
     args = parser.parse_args()
     chatbot(args.model_path, args.lora_path, args.device)
-
-
-

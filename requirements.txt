@@ -1,8 +1,13 @@
 datasets==3.1.0
+faiss_gpu==1.7.2
 gradio==5.10.0
-openai==1.59.3
+numpy==2.2.1
+openai==1.59.4
 peft==0.14.0
 PyYAML==6.0.2
+PyYAML==6.0.2
+sentence_transformers==2.2.2
 torch==2.5.1
 transformers==4.47.0
+huggingface_hub==0.25.2
 "opencompass[full]"
