@@ -16,7 +16,7 @@ pip install -r requirements.txt
 Run the following commands to fine-tune the model:
 ```bash
 cd sft
-python finetune.py
+python finetune.py --config config.yaml --use_lora False
 ```
 
 ## 💻 Deploy on Terminal
