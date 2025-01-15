@@ -6,7 +6,7 @@ import json
 
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-with open("./cs.jsonl", 'r', encoding='utf-8') as f:
+with open("./dataset/cs.jsonl", 'r', encoding='utf-8') as f:
     entry_list = [json.loads(line.strip()) for line in f]
 
 query_base = [entry["input"] for entry in entry_list]
