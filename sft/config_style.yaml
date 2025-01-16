@@ -1,0 +1,23 @@
+model_args:
+  model_name_or_path: "./models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
+  torch_dtype: "bfloat16"
+
+data_args:
+  dataset_path: "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/huanhuan.json"
+
+lora_args:
+  lora_name_or_path: "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
+
+
+training_args:
+  output_dir: "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output"
+  overwrite_output_dir: true
+  num_train_epochs: 5
+  per_device_train_batch_size: 1
+  save_strategy: "epoch"
+  logging_steps: 100
+  learning_rate: !!float 5e-4
+  weight_decay: 0.003
+  warmup_ratio: 0.01
+  optim: "adamw_hf"
+  lr_scheduler_type: "cosine"

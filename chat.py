@@ -102,7 +102,7 @@ def stream_chat(
     top_p: float = 0.9,
     meta_instruction: str = "You are a useful assistant.",
     device: Optional[str] = "cuda:1",
-    use_retrieval: bool = True
+    use_retrieval: bool = True,
     **kwargs,
 ):
     if history is None:
@@ -175,7 +175,7 @@ def stream_chat(
             temperature=temperature,
             top_p=top_p,
             meta_instruction=meta_instruction,
-            use_retrieval=use_retrieval
+            use_retrieval=use_retrieval,
             **kwargs,
         )
 
@@ -190,7 +190,7 @@ def stream_chat(
 
     return consumer()
 
-def chatbot(model_name, lora_path, device="cuda:0", use_streamer = True, use_retrieval = True):
+def chatbot(model_name, lora_path, device="cuda:0", system_prompt="You are a useful AI assistant", use_streamer = True, use_retrieval = False):
     print("加载模型中，请稍候...")
     tokenizer, model = load_model(model_name, lora_path, device)
     #style_model = StyleModel(scene="三国演义", character="刘备", device=device, model_name_or_path="stylellm/SanGuoYanYi-6b-AWQ")
@@ -213,15 +213,11 @@ def chatbot(model_name, lora_path, device="cuda:0", use_streamer = True, use_ret
                     print("机器人: ")
                     sys.stdout.write("\033[s")  
                     sys.stdout.flush()
-                    for response, history in stream_chat(model, tokenizer, query, history, device=device, use_retrieval=use_retrieval):
-                        #stylemodel
-                        #response = style_model.generate(response)   
+                    for response, history in stream_chat(model, tokenizer, query, history, device=device, use_retrieval=use_retrieval,meta_instruction=system_prompt):
                         sys.stdout.write(f"\033[u{response}")
                     print("\n")
                 else:
-                    response, history = chat(model, tokenizer, query, history, device=device, use_retrieval=use_retrieval)
-                    #stylemodel
-                    #response = style_model.generate(response)   
+                    response, history = chat(model, tokenizer, query, history, device=device, use_retrieval=use_retrieval, meta_instruction=system_prompt)  
                     print("机器人: \n", response)
             
             except Exception as e:
@@ -234,3 +230,11 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="cuda:0", help="inference on which device")
     args = parser.parse_args()
     chatbot(args.model_path, args.lora_path, args.device)
+    # chatbot("/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b",
+    #     "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250115_222004_output_style_finetune/checkpoint-18645",
+    #     "cuda:0",
+    #     "假设你是皇帝身边的女人--甄嬛。"
+    #     )
+
+
+

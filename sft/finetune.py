@@ -7,9 +7,9 @@ from transformers import TrainingArguments, Trainer, AutoTokenizer, AutoModelFor
 import datasets
 from datetime import datetime
 import copy
-from peft import LoraConfig, get_peft_model, TaskType
+from peft import LoraConfig, get_peft_model, TaskType,PeftModel
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 os.environ["NCCL_P2P_DISABLE"] = "1"
 os.environ["NCCL_IB_DISABLE"] = "1"
 
@@ -31,6 +31,12 @@ class DataArguments:
     dataset_path: Optional[str] = field(
         default=None, metadata={"help": "The path to the fine-tuning dataset or its name on the Hugging Face Hub."}
     )
+@dataclass
+class LoraArguments:
+    """Arguments for LoRA"""
+    lora_name_or_path: Optional[str] = field(
+        default=None, metadata={"help": "The path to the LoRA model which is fintune in the task1."}
+    )
 
 
 def load_config(config_path: str):
@@ -40,7 +46,7 @@ def load_config(config_path: str):
     return config
 
 
-def finetune(config_path: str, loss: str, use_lora: bool):
+def finetune(config_path: str, loss: str, use_lora: bool, style_finetune: bool):
     # Load config from the provided YAML file
     config = load_config(config_path)
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -49,7 +55,11 @@ def finetune(config_path: str, loss: str, use_lora: bool):
     model_args = ModelArguments(**config.get("model_args", {}))
     data_args = DataArguments(**config.get("data_args", {}))
     training_args = TrainingArguments(**config.get("training_args", {}))
-    log_dir = current_time + "_" + loss
+    if style_finetune:
+        lora_args = LoraArguments(**config.get("lora_args", {}))
+        log_dir = current_time + "_" + loss + "_style_finetune" 
+    else:
+        log_dir = current_time + "_" + loss 
     training_args.output_dir = os.path.join(training_args.output_dir, log_dir)
     
 
@@ -59,7 +69,7 @@ def finetune(config_path: str, loss: str, use_lora: bool):
         model_args.model_name_or_path,
         torch_dtype=getattr(torch, model_args.torch_dtype) if model_args.torch_dtype else None,
     )
-    if use_lora:
+    if use_lora and not style_finetune:
         lora_config = LoraConfig(
             r=8,                      # LoRA rank
             lora_alpha=32,           # LoRA alpha
@@ -73,22 +83,41 @@ def finetune(config_path: str, loss: str, use_lora: bool):
         model = get_peft_model(model, lora_config)
         model.config.use_cache = False
         model.print_trainable_parameters()
+    elif use_lora and style_finetune:   
+        model=PeftModel.from_pretrained(model,lora_args.lora_name_or_path,is_trainable=True)
+        model.config.use_cache = False
+        model.print_trainable_parameters()
+    
+    
+
 
     # Load dataset
     dataset = datasets.load_dataset("json", data_files={"train": data_args.dataset_path})
     
-    PROMPT_DICT = {
-        "prompt_input": (
-            "Below is an instruction that describes a task, paired with an input that provides further context. "
-            "Write a response that appropriately completes the request.\n\n"
-            "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
-        ),
-        "prompt_no_input": (
-            "Below is an instruction that describes a task. "
-            "Write a response that appropriately completes the request.\n\n"
-            "### Instruction:\n{instruction}\n\n### Response:"
-        ),
-    }
+    if style_finetune:
+        PROMPT_DICT = {
+            "prompt_input": (
+                "现在你要扮演皇帝身边的女人--甄嬛.\n\n"
+                "user:\n{instruction}\n\n assistant:"
+            ),
+            "prompt_no_input": (
+                "现在你要扮演皇帝身边的女人--甄嬛.\n\n"
+                "user:\n{instruction}\n\n assistant:"
+            ),
+        }
+    else:
+        PROMPT_DICT = {
+            "prompt_input": (
+                "Below is an instruction that describes a task, paired with an input that provides further context. "
+                "Write a response that appropriately completes the request.\n\n"
+                "### Instruction:\n{instruction}\n\n### Input:\n{input}\n\n### Response:"
+            ),
+            "prompt_no_input": (
+                "Below is an instruction that describes a task. "
+                "Write a response that appropriately completes the request.\n\n"
+                "### Instruction:\n{instruction}\n\n### Response:"
+            ),
+        }
     def tokenize_function(example):
         IGNORE_INDEX = -100
         if example.get("input", "") == "":
@@ -143,9 +172,10 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Fine-tune LLMs with Huggingface.")
-    parser.add_argument("--config", type=str, default="config.yaml", help="Path to the YAML configuration file.")
+    parser.add_argument("--config", type=str, default="config_style.yaml", help="Path to the YAML configuration file.")
     parser.add_argument("--loss", type=str, default="output", help="Using output or whole as labels to compute loss")
     parser.add_argument("--use_lora", type=bool, default=True, help="Using lora to finetune or not")
+    parser.add_argument("--style_finetune", type=bool, default=False, help="Using style finetune or not")
     args = parser.parse_args()
-
-    finetune(args.config, args.loss, args.use_lora)
+    
+    finetune(args.config, args.loss, args.use_lora, args.style_finetune)
