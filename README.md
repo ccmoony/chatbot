@@ -31,7 +31,7 @@ Run the following commands to fine-tune the model with LoRA to imitate the tone 
 python finetune.py --config config_style.yaml 
 ```
 ### Checkpoint
-You can download our lora finetuned model from Here(https://jbox.sjtu.edu.cn/v/link/view/b4d703075cc944e1b2abae6d745a5e63).
+You can download our lora finetuned model from [Here](https://jbox.sjtu.edu.cn/v/link/view/b4d703075cc944e1b2abae6d745a5e63).
 ## 💻 Deploy on Terminal
 Run the following commands to start the chatbot on terminal.
 Use the pretrained model or the full-parameter fine-tuned model:
