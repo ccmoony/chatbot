@@ -37,7 +37,7 @@ def load_model(model_name, lora_path, device):
     # model = get_peft_model(model, lora_config)
     return tokenizer, model
     
-def build_inputs(tokenizer, query: str, history: List[Tuple[str, str]] = None, meta_instruction="", retrieval=True):
+def build_inputs(tokenizer, query: str, history: List[Tuple[str, str]] = None, meta_instruction="", retrieval=False):
     if history is None:
         history = []
     prompt = ""
@@ -66,11 +66,11 @@ def chat(
         top_p: float = 0.9,
         meta_instruction: str = "You are a useful assistant.",
         device: Optional[str] = "cuda:1",
-        use_retrieval: bool = True,
+        use_retrieval: bool = False,
         **kwargs,
     ):
 
-        inputs = build_inputs(tokenizer, query, history, meta_instruction)
+        inputs = build_inputs(tokenizer, query, history, meta_instruction, use_retrieval)
         inputs = {k: v.to(device) for k, v in inputs.items() if torch.is_tensor(v)}
         # also add end-of-assistant token in eos token id to avoid unnecessary generation
         eos_token_id = [tokenizer.eos_token_id, tokenizer.convert_tokens_to_ids(["<|im_end|>"])[0]]
@@ -96,13 +96,13 @@ def stream_chat(
     tokenizer,
     query: str,
     history: List[Tuple[str, str]] = None,
-    max_new_tokens: int = 128,
+    max_new_tokens: int = 512,
     do_sample: bool = True,
     temperature: float = 0.7,
     top_p: float = 0.9,
     meta_instruction: str = "You are a useful assistant.",
     device: Optional[str] = "cuda:1",
-    use_retrieval: bool = True,
+    use_retrieval: bool = False,
     **kwargs,
 ):
     if history is None:
@@ -230,11 +230,7 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="cuda:0", help="inference on which device")
     args = parser.parse_args()
     chatbot(args.model_path, args.lora_path, args.device)
-    # chatbot("/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b",
-    #     "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250115_222004_output_style_finetune/checkpoint-18645",
-    #     "cuda:0",
-    #     "假设你是皇帝身边的女人--甄嬛。"
-    #     )
+
 
 
 

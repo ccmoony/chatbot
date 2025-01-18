@@ -1,7 +1,8 @@
 from chat import chat, load_model, stream_chat
 import gradio as gr
+from retrieval import retrieve_knowledge
 
-device = "cuda:0"
+device = "cuda:1"
 model_name = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
 lora_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
 tokenizer, model = load_model(model_name, lora_path, device=device)
@@ -9,17 +10,21 @@ title_html = '''
 <img src="https://notes.sjtu.edu.cn/uploads/upload_84e031cf5eebf3c88f27c87c3d70788b.png" style="width: 150px; height: 150px;">
 <h3>This is the chatbot of group ChatGPT
 '''
-def chatbot_response(query, history, system_prompt, temperature, top_p, max_output_tokens, do_sample, use_stream=True):
-    if use_stream:
-        for response, history in stream_chat(model, tokenizer, query, history, device=device, meta_instruction=system_prompt, temperature=temperature, top_p=top_p, max_new_tokens=max_output_tokens, do_sample=do_sample):
-            yield response, history
+def chatbot_response(query, history, system_prompt, temperature, top_p, max_output_tokens, do_sample, use_retrieval, use_stream=True):
+    if use_retrieval:
+        knowledge = retrieve_knowledge(query)
     else:
-        response, history = chat(model, tokenizer, query, history, device=device, meta_instruction=system_prompt, temperature=temperature, top_p=top_p, max_new_tokens=max_output_tokens, do_sample=do_sample)
+        knowledge = ""
+    if use_stream:
+        for response, history in stream_chat(model, tokenizer, query, history, device=device, meta_instruction=system_prompt, temperature=temperature, top_p=top_p, max_new_tokens=max_output_tokens, do_sample=do_sample, use_retrieval=use_retrieval):
+            yield response, history, knowledge
+    else:
+        response, history = chat(model, tokenizer, query, history, device=device, meta_instruction=system_prompt, temperature=temperature, top_p=top_p, max_new_tokens=max_output_tokens, do_sample=do_sample, use_retrieval=use_retrieval)
     
-        return response, history
+        return response, history, knowledge
 
 def clear_history():
-    return "", "", []
+    return "", "", [], ""
 
 chat_history = []
 
@@ -59,15 +64,17 @@ with gr.Blocks() as demo:
                     label="Max output tokens",
                 )
                 do_sample = gr.Checkbox(label="do_sample", value=True)
+                use_retrieval = gr.Checkbox(label="use_retrieval", value=False)
+            relevant_knowledge = gr.Textbox(label="Retrieved Knowledge", placeholder="set use_retrieval to true in settings if you want to use RAG..", lines=7)    
 
         with gr.Column(scale=8):
-            chat_output = gr.Textbox(label="Chatbot", interactive=False, lines=18)
-            user_input = gr.Textbox(label="输入你的消息", placeholder="请在这里输入...", lines=5)
+            chat_output = gr.Textbox(label="Chatbot", interactive=False, lines=20)
+            user_input = gr.Textbox(label="User", placeholder="Enter message here...", lines=5)
             with gr.Row():
-                submit_button = gr.Button("发送")
-                clear_button = gr.Button("🗑️ 清空")
+                submit_button = gr.Button("Send")
+                clear_button = gr.Button("🗑️ Clear")
         
 
-    submit_button.click(chatbot_response, inputs=[user_input, gr.State(chat_history), system_prompt, temperature, top_p, max_output_tokens, do_sample], outputs=[chat_output, gr.State(chat_history)])
-    clear_button.click(clear_history, inputs=[] ,outputs=[chat_output, user_input, gr.State(chat_history)])
+    submit_button.click(chatbot_response, inputs=[user_input, gr.State(chat_history), system_prompt, temperature, top_p, max_output_tokens, do_sample, use_retrieval], outputs=[chat_output, gr.State(chat_history), relevant_knowledge])
+    clear_button.click(clear_history, inputs=[] ,outputs=[chat_output, user_input, gr.State(chat_history), relevant_knowledge])
 demo.launch()
