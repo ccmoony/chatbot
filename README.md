@@ -48,7 +48,7 @@ Use the Zhen Huan styled model:
 python chat.py --model_path "your_model_path" --lora_path "zhenhuan_style_lora_path" --style
 ```
 ## 🎮 GUI Demo
-Run the following command to start a Web UI demo:
+Run the following command to start a Web UI demo(You may need to change the model path to your own path in demo.py):
 ```bash
 python demo.py
 ```
