@@ -1,15 +1,27 @@
 from chat import chat, load_model, stream_chat
 import gradio as gr
 from retrieval import retrieve_knowledge
-
-device = "cuda:1"
-model_name = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
-lora_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
-tokenizer, model = load_model(model_name, lora_path, device=device)
+device = "cuda:0"
 title_html = '''
 <img src="https://notes.sjtu.edu.cn/uploads/upload_84e031cf5eebf3c88f27c87c3d70788b.png" style="width: 150px; height: 150px;">
 <h3>This is the chatbot of group ChatGPT
 '''
+model_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
+lora_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
+tokenizer, model = load_model(model_path, lora_path, device=device)
+def load_models(model_type="chat"):
+    global model, tokenizer, device
+    model.cpu()
+    model_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
+    if model_type == "chat":
+        system_prompt = "You are a useful AI assistant"
+        lora_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
+    elif model_type == "huanhuan":
+        system_prompt = "假设你是皇帝身边的女人--甄嬛。"
+        lora_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250115_222004_output_style_finetune/checkpoint-18645"
+    tokenizer, model = load_model(model_path, lora_path, device=device)
+    return system_prompt
+
 def chatbot_response(query, history, system_prompt, temperature, top_p, max_output_tokens, do_sample, use_retrieval, use_stream=True):
     if use_retrieval:
         knowledge = retrieve_knowledge(query)
@@ -32,6 +44,7 @@ with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column(scale=2):
             gr.HTML(title_html)
+            model_type = gr.Dropdown(["chat", "huanhuan"], label="Style", interactive=True)
             # gr.Markdown("## This is the chatbot of group ChatGPT")
             with gr.Accordion("Settings", open=False) as setting_row:
                 system_prompt = gr.Textbox(
@@ -71,10 +84,11 @@ with gr.Blocks() as demo:
             chat_output = gr.Textbox(label="Chatbot", interactive=False, lines=20)
             user_input = gr.Textbox(label="User", placeholder="Enter message here...", lines=5)
             with gr.Row():
-                submit_button = gr.Button("Send")
+                submit_button = gr.Button("➡️ Send")
                 clear_button = gr.Button("🗑️ Clear")
         
 
     submit_button.click(chatbot_response, inputs=[user_input, gr.State(chat_history), system_prompt, temperature, top_p, max_output_tokens, do_sample, use_retrieval], outputs=[chat_output, gr.State(chat_history), relevant_knowledge])
     clear_button.click(clear_history, inputs=[] ,outputs=[chat_output, user_input, gr.State(chat_history), relevant_knowledge])
+    model_type.change(load_models, inputs=model_type, outputs=[system_prompt])
 demo.launch()
