@@ -11,6 +11,7 @@ conda create -n chenbot python=3.10
 conda activate chenbot
 pip install -r requirements.txt
 ```
+Download [Qwen2.5-3B](https://huggingface.co/Qwen/Qwen2.5-3B) and put it in the root folder.
 ## 🚀 Fine-tuning
 Navigate to the sft directory
 ```bash
