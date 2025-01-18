@@ -1,5 +1,4 @@
-# Chatbot
-cs.jsonl can be downloaded [[here]](https://huggingface.co/datasets/TommyChien/UltraDomain/tree/main)
+# Chenbot
 ## ⚙️ Configuration
 First, clone the repository and navigate to the project directory:
 ```bash
@@ -43,7 +42,7 @@ python chat.py --model_path "your_model_path" --lora_path "your_lora_path"
 ```
 Use the Zhen Huan styled model:
 ```bash
-
+python chat.py --model_path "your_model_path" --lora_path "zhenhuan_style_lora_path" --style
 ```
 ## 🎮 GUI Demo
 Run the following command to start a Web UI demo:
