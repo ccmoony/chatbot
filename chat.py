@@ -10,8 +10,6 @@ except Exception:
 import queue
 import threading
 import sys
-#stylemodel
-from style_model import StyleModel
 import argparse
  
 logging.set_verbosity_error()
