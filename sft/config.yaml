@@ -3,10 +3,10 @@ model_args:
   torch_dtype: "bfloat16"
 
 data_args:
-  dataset_path: "./alpaca-cleaned/alpaca_data_cleaned.json"
+  dataset_path: "../dataset/alpaca-cleaned/alpaca_data_cleaned.json"
 
 training_args:
-  output_dir: "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output"
+  output_dir: "../checkpoint/Qwen2.5-3B-lora-output"
   overwrite_output_dir: true
   num_train_epochs: 5
   per_device_train_batch_size: 1

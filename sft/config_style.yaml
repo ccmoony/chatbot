@@ -3,14 +3,14 @@ model_args:
   torch_dtype: "bfloat16"
 
 data_args:
-  dataset_path: "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/huanhuan.json"
+  dataset_path: "../dataset/huanhuan.json"
 
 lora_args:
-  lora_name_or_path: "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
+  lora_name_or_path: "../checkpoints/Qwen2.5-3B-lora"
 
 
 training_args:
-  output_dir: "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output"
+  output_dir: "../checkpoints/Qwen2.5-3B-lora"
   overwrite_output_dir: true
   num_train_epochs: 5
   per_device_train_batch_size: 1

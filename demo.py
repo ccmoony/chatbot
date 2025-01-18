@@ -6,19 +6,19 @@ title_html = '''
 <img src="https://notes.sjtu.edu.cn/uploads/upload_84e031cf5eebf3c88f27c87c3d70788b.png" style="width: 150px; height: 150px;">
 <h3>This is the chatbot of group ChatGPT
 '''
-model_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
-lora_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
+model_path = "./models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
+lora_path = "./Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
 tokenizer, model = load_model(model_path, lora_path, device=device)
 def load_models(model_type="chat"):
     global model, tokenizer, device
     model.cpu()
-    model_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
+    model_path = "./models--Qwen--Qwen2.5-3B/snapshots/3aab1f1954e9cc14eb9509a215f9e5ca08227a9b"
     if model_type == "chat":
         system_prompt = "You are a useful AI assistant"
-        lora_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
+        lora_path = "./checkpoint/Qwen2.5-3B-lora-output/20250101_204840_output/checkpoint-258800"
     elif model_type == "huanhuan":
         system_prompt = "假设你是皇帝身边的女人--甄嬛。"
-        lora_path = "/home/wanglonghao/wanglonghao_space/Projects/nlp_2024/Qwen2.5-3B-lora-output/20250115_222004_output_style_finetune/checkpoint-18645"
+        lora_path = "./checkpoint/Qwen2.5-3B-lora-output/20250115_222004_output_style_finetune/checkpoint-18645"
     tokenizer, model = load_model(model_path, lora_path, device=device)
     return system_prompt
 

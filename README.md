@@ -13,12 +13,24 @@ conda activate chenbot
 pip install -r requirements.txt
 ```
 ## 🚀 Fine-tuning
-Run the following commands to fine-tune the model:
+Navigate to the sft directory
 ```bash
 cd sft
+```
+### Instruction-tuning
+Run the following commands for instruction tuning using Alpaca-cleaned dataset:
+```bash
 python finetune.py --config config.yaml --use_lora False
 ```
-
+Run the following commands for instruction tuning using Alpaca-cleaned dataset with LoRA:
+```bash
+python finetune.py --config config.yaml --use_lora True
+```
+### Style-tuning
+Run the following commands to fine-tune the model with LoRA to imitate the tone of Zhen Huan:
+```bash
+python finetune.py --config config_style.yaml 
+```
 ## 💻 Deploy on Terminal
 Run the following commands to start the chatbot on terminal.
 Use the pretrained model or the full-parameter fine-tuned model:
@@ -29,7 +41,10 @@ Use the LoRA fine-tuned model:
 ```bash
 python chat.py --model_path "your_model_path" --lora_path "your_lora_path"
 ```
+Use the Zhen Huan styled model:
+```bash
 
+```
 ## 🎮 GUI Demo
 Run the following command to start a Web UI demo:
 ```bash
