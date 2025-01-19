@@ -1,4 +1,4 @@
-# Chenbot
+# CHENBOT
 ![demo](./logo.png)
 ## ⚙️ Configuration
 First, clone the repository and navigate to the project directory:
