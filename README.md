@@ -62,3 +62,4 @@ Run the following command to start a Web UI demo(You may need to change the mode
 python demo.py
 ```
 The demo below will open in a browser on http://localhost:7860
+![UI](./UI.png)
