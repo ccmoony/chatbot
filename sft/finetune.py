@@ -175,7 +175,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", type=str, default="config_style.yaml", help="Path to the YAML configuration file.")
     parser.add_argument("--loss", type=str, default="output", help="Using output or whole as labels to compute loss")
     parser.add_argument("--use_lora", type=bool, default=True, help="Using lora to finetune or not")
-    parser.add_argument("--style_finetune", type=bool, default=False, help="Using style finetune or not")
+    parser.add_argument("--style_finetune", action="store_true", help="Using style finetune or not")
     args = parser.parse_args()
     
     finetune(args.config, args.loss, args.use_lora, args.style_finetune)
