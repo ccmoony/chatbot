@@ -14,8 +14,9 @@ pip install -r requirements.txt
 ```
 Download [Qwen2.5-3B](https://huggingface.co/Qwen/Qwen2.5-3B) and put it in the root folder.
 ## 🚀 Fine-tuning
-Navigate to the sft directory
+Make a new directory checkpoint and navigate to the sft directory
 ```bash
+mkdir checkpoint
 cd sft
 ```
 ### Instruction-tuning
@@ -37,7 +38,7 @@ Run the following commands to fine-tune the model with LoRA to imitate the tone 
 python finetune.py --config config_sunwukong.yaml --style wukong --use_lora
 ```
 ### Checkpoint
-You can download our lora finetuned model from [Here](https://jbox.sjtu.edu.cn/v/link/view/b4d703075cc944e1b2abae6d745a5e63).
+You can download our lora finetuned model from [Here](https://jbox.sjtu.edu.cn/v/link/view/b4d703075cc944e1b2abae6d745a5e63) and put them in ../checkpoint folder.
 ## 💻 Deploy on Terminal
 Run the following commands to start the chatbot on terminal.
 Use the pretrained model or the full-parameter fine-tuned model:
