@@ -19,6 +19,9 @@ def load_models(model_type="chat"):
     elif model_type == "huanhuan":
         system_prompt = "假设你是皇帝身边的女人--甄嬛。"
         lora_path = "./checkpoint/Qwen2.5-3B-lora-output/20250115_222004_output_style_finetune/checkpoint-18645"
+    elif model_type == "wukong":
+        system_prompt = "假设你是西游记中的孙悟空。"
+        lora_path = "./checkpoint/Qwen2.5-3B-lora-output/20250119_094156_output_style_finetune/checkpoint-1620"
     tokenizer, model = load_model(model_path, lora_path, device=device)
     return system_prompt
 
@@ -44,7 +47,7 @@ with gr.Blocks() as demo:
     with gr.Row():
         with gr.Column(scale=2):
             gr.HTML(title_html)
-            model_type = gr.Dropdown(["chat", "huanhuan"], label="Style", interactive=True)
+            model_type = gr.Dropdown(["chat", "huanhuan", "wukong"], label="Style", interactive=True)
             # gr.Markdown("## This is the chatbot of group ChatGPT")
             with gr.Accordion("Settings", open=False) as setting_row:
                 system_prompt = gr.Textbox(

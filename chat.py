@@ -188,9 +188,11 @@ def stream_chat(
 
     return consumer()
 
-def chatbot(model_name, lora_path, device="cuda:0", system_prompt="You are a useful AI assistant", use_streamer = True, use_retrieval = False, style=False):
-    if style:
+def chatbot(model_name, lora_path, device="cuda:0", system_prompt="You are a useful AI assistant", use_streamer = True, use_retrieval = False, style="chat"):
+    if style=="huanhuan":
         system_prompt = "假设你是皇帝身边的女人--甄嬛。"
+    elif style=="wukong":
+        system_prompt = "假设你是西游记中的孙悟空。"
     print("加载模型中，请稍候...")
     tokenizer, model = load_model(model_name, lora_path, device)
     print("模型加载完成！输入 \\quit 结束会话，输入 \\newsession 开启新的对话。")
@@ -227,7 +229,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_path", type=str, help="the path of pretrained model checkpoint")
     parser.add_argument("--lora_path", type=str, default=None, help="the path of lora checkpoint")
     parser.add_argument("--device", type=str, default="cuda:0", help="inference on which device")
-    parser.add_argument("--style", action="store_true", help="use style model")
+    parser.add_argument("--style", type=str, default="chat", help="use style model")
     args = parser.parse_args()
     chatbot(args.model_path, args.lora_path, args.device, style=args.style)
 

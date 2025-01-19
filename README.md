@@ -1,4 +1,5 @@
 # Chenbot
+![demo](./logo.png)
 ## ⚙️ Configuration
 First, clone the repository and navigate to the project directory:
 ```bash
@@ -20,16 +21,20 @@ cd sft
 ### Instruction-tuning
 Run the following commands for instruction tuning using Alpaca-cleaned dataset:
 ```bash
-python finetune.py --config config.yaml
+python finetune.py
 ```
 Run the following commands for instruction tuning using Alpaca-cleaned dataset with LoRA:
 ```bash
-python finetune.py --config config.yaml --use_lora
+python finetune.py --use_lora
 ```
 ### Style-tuning
 Run the following commands to fine-tune the model with LoRA to imitate the tone of Zhen Huan:
 ```bash
-python finetune.py --config config_style.yaml --use_lora --style_finetune
+python finetune.py --config config_huanhuan.yaml --style huanhuan --use_lora
+```
+Run the following commands to fine-tune the model with LoRA to imitate the tone of Sun Wukong:
+```bash
+python finetune.py --config config_sunwukong.yaml --style wukong --use_lora
 ```
 ### Checkpoint
 You can download our lora finetuned model from [Here](https://jbox.sjtu.edu.cn/v/link/view/b4d703075cc944e1b2abae6d745a5e63).
@@ -45,7 +50,11 @@ python chat.py --model_path "your_model_path" --lora_path "your_lora_path"
 ```
 Use the Zhen Huan styled model:
 ```bash
-python chat.py --model_path "your_model_path" --lora_path "zhenhuan_style_lora_path" --style
+python chat.py --model_path "your_model_path" --lora_path "zhenhuan_style_lora_path" --style huanhuan
+```
+Use the Sun Wukong styled model:
+```bash
+python chat.py --model_path "your_model_path" --lora_path "wukong_style_lora_path" --style wukong
 ```
 ## 🎮 GUI Demo
 Run the following command to start a Web UI demo(You may need to change the model path to your own path in demo.py):

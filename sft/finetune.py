@@ -46,7 +46,7 @@ def load_config(config_path: str):
     return config
 
 
-def finetune(config_path: str, loss: str, use_lora: bool, style_finetune: bool):
+def finetune(config_path: str, loss: str, use_lora: bool, style: str):
     # Load config from the provided YAML file
     config = load_config(config_path)
     current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -55,9 +55,9 @@ def finetune(config_path: str, loss: str, use_lora: bool, style_finetune: bool):
     model_args = ModelArguments(**config.get("model_args", {}))
     data_args = DataArguments(**config.get("data_args", {}))
     training_args = TrainingArguments(**config.get("training_args", {}))
-    if style_finetune:
+    if style!="chat":
         lora_args = LoraArguments(**config.get("lora_args", {}))
-        log_dir = current_time + "_" + loss + "_style_finetune" 
+        log_dir = current_time + "_" + loss + "_" + style 
     else:
         log_dir = current_time + "_" + loss 
     training_args.output_dir = os.path.join(training_args.output_dir, log_dir)
@@ -94,7 +94,7 @@ def finetune(config_path: str, loss: str, use_lora: bool, style_finetune: bool):
     # Load dataset
     dataset = datasets.load_dataset("json", data_files={"train": data_args.dataset_path})
     
-    if style_finetune:
+    if style=="huanhuan":
         PROMPT_DICT = {
             "prompt_input": (
                 "现在你要扮演皇帝身边的女人--甄嬛.\n\n"
@@ -102,6 +102,17 @@ def finetune(config_path: str, loss: str, use_lora: bool, style_finetune: bool):
             ),
             "prompt_no_input": (
                 "现在你要扮演皇帝身边的女人--甄嬛.\n\n"
+                "user:\n{instruction}\n\n assistant:"
+            ),
+        }
+    elif style=="wukong":
+        PROMPT_DICT = {
+            "prompt_input": (
+                "现在你要扮演西游记中的孙悟空.\n\n"
+                "user:\n{instruction}\n\n assistant:"
+            ),
+            "prompt_no_input": (
+                "现在你要扮演西游记中的孙悟空.\n\n"
                 "user:\n{instruction}\n\n assistant:"
             ),
         }
@@ -172,10 +183,10 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Fine-tune LLMs with Huggingface.")
-    parser.add_argument("--config", type=str, default="config_style.yaml", help="Path to the YAML configuration file.")
+    parser.add_argument("--config", type=str, default="config.yaml", help="Path to the YAML configuration file.")
     parser.add_argument("--loss", type=str, default="output", help="Using output or whole as labels to compute loss")
     parser.add_argument("--use_lora", action="store_true", help="Using lora to finetune or not")
-    parser.add_argument("--style_finetune", action="store_true", help="Using style finetune or not")
+    parser.add_argument("--style", type=str, default="chat",  help="Using which style to finetune ")
     args = parser.parse_args()
     
-    finetune(args.config, args.loss, args.use_lora, args.style_finetune)
+    finetune(args.config, args.loss, args.use_lora, args.style)
