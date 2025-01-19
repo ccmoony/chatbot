@@ -174,7 +174,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fine-tune LLMs with Huggingface.")
     parser.add_argument("--config", type=str, default="config_style.yaml", help="Path to the YAML configuration file.")
     parser.add_argument("--loss", type=str, default="output", help="Using output or whole as labels to compute loss")
-    parser.add_argument("--use_lora", type=bool, default=True, help="Using lora to finetune or not")
+    parser.add_argument("--use_lora", action="store_true", help="Using lora to finetune or not")
     parser.add_argument("--style_finetune", action="store_true", help="Using style finetune or not")
     args = parser.parse_args()
     
