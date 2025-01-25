@@ -230,8 +230,9 @@ if __name__ == "__main__":
     parser.add_argument("--lora_path", type=str, default=None, help="the path of lora checkpoint")
     parser.add_argument("--device", type=str, default="cuda:0", help="inference on which device")
     parser.add_argument("--style", type=str, default="chat", help="use style model")
+    parser.add_argument("--retrieval", action="store_true", help="use RAG or not")
     args = parser.parse_args()
-    chatbot(args.model_path, args.lora_path, args.device, style=args.style)
+    chatbot(args.model_path, args.lora_path, args.device, use_retrieval=args.retrieval, style=args.style)
 
 
 
