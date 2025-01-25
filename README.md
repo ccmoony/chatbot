@@ -1,5 +1,5 @@
+<p align="center"><img src="./logo.png" width="10%"></p>
 # CHENBOT
-![demo](./logo.png)
 ## ⚙️ Configuration
 First, clone the repository and navigate to the project directory:
 ```bash
