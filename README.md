@@ -1,6 +1,7 @@
-<p align="center"><img src="./logo.png" width="10%"></p>
+<p align="center"><img src="./logo.png" width="12%"></p>
 
-# CHENBOT
+# CHENBOT ![Static Badge](https://img.shields.io/badge/toy-Chatbot-blue)
+CHENBOT is a simple chatbot with knowledge and warmth.
 ## ⚙️ Configuration
 First, clone the repository and navigate to the project directory:
 ```bash
